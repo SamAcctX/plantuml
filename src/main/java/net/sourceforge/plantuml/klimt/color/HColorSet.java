@@ -44,14 +44,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.StringBuilder2;
 import net.sourceforge.plantuml.regex.Matcher2;
-import net.sourceforge.plantuml.regex.MyPattern;
 import net.sourceforge.plantuml.regex.Pattern2;
 
 public class HColorSet {
 
-	private static final Pattern2 COLOR_GRADIENT_SEPARATOR = MyPattern.cmpile("[-\\\\|/]");
+	private static final Pattern2 COLOR_GRADIENT_SEPARATOR = Pattern2.cmpile("[-\\\\|/]");
 
 	private final static HColorSet singleton = new HColorSet();
 
@@ -373,7 +372,7 @@ public class HColorSet {
 
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -437,7 +436,7 @@ public class HColorSet {
 			len--;
 		}
 
-		final StringBuilder sb = new StringBuilder(len);
+		final StringBuilder2 sb = new StringBuilder2(len);
 		for (int i = start; i < s.length(); i++) {
 			final char c = s.charAt(i);
 			if (c >= 'A' && c <= 'Z')
@@ -446,6 +445,7 @@ public class HColorSet {
 				sb.append(c);
 
 		}
+
 		return sb.toString();
 	}
 

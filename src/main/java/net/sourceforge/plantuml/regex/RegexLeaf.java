@@ -55,12 +55,21 @@ public class RegexLeaf implements IRegex {
 	private int count = -1;
 
 	public RegexLeaf(String regex) {
-		this(null, regex);
+		this(0, null, regex);
 	}
 
-	public RegexLeaf(String name, String regex) {
+	public RegexLeaf(int count, String regex) {
+		this(count, null, regex);
+	}
+
+	public RegexLeaf(int count, String name, String regex) {
 		this.pattern = regex;
 		this.name = name;
+		this.count = count;
+		assert internalSlowCount() == count : name; // name + " internal=" + internalSlowCount() + " count=" + count
+//		if (internalSlowCount() != count) {
+//			Log.logStackTrace(name + " internal=" + internalSlowCount() + " count=" + count);
+//		}
 	}
 
 	public static RegexLeaf spaceZeroOrMore() {
@@ -88,15 +97,17 @@ public class RegexLeaf implements IRegex {
 		return name;
 	}
 
-	public String getPattern() {
+	@Override
+	public String getPatternAsString() {
 		return pattern;
 	}
 
 	public int count() {
-		if (count == -1)
-			count = MyPattern.cmpile(pattern).matcher("").groupCount();
-
 		return count;
+	}
+
+	private int internalSlowCount() {
+		return Pattern2.compileInternal(pattern).matcher("").groupCount();
 	}
 
 	public Map<String, RegexPartialMatch> createPartialMatch(Iterator<String> it) {
@@ -137,12 +148,15 @@ public class RegexLeaf implements IRegex {
 		return result;
 	}
 
+	private static final Pattern PATTERN_TO_REMOVE = Pattern
+			.compile("\\[%s\\][+*?]?|\\(\\[([^\\\\\\[\\]])+\\]\\)[+*?]?");
+
 	public long getFoxSignature() {
 		if (pattern.equals("[%s]+"))
 			return FoxSignature.getSpecialSpaces();
 		if (pattern.equals("[%s]*"))
 			return 0;
-		final String pattern2 = pattern.replaceAll("\\[%s\\][+*?]?|\\(\\[([^\\\\\\[\\]])+\\]\\)[+*?]?", "");
+		final String pattern2 = PATTERN_TO_REMOVE.matcher(pattern).replaceAll("");
 
 		final Matcher m1 = p1.matcher(pattern2);
 		if (m1.matches())

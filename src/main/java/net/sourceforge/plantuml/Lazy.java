@@ -33,37 +33,30 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.command;
+package net.sourceforge.plantuml;
 
-import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.ParserPass;
-import net.sourceforge.plantuml.command.SingleLineCommand2;
-import net.sourceforge.plantuml.project.GanttDiagram;
-import net.sourceforge.plantuml.regex.IRegex;
-import net.sourceforge.plantuml.regex.RegexConcat;
-import net.sourceforge.plantuml.regex.RegexLeaf;
-import net.sourceforge.plantuml.regex.RegexResult;
-import net.sourceforge.plantuml.utils.LineLocation;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class CommandFootbox extends SingleLineCommand2<GanttDiagram> {
-	// ::remove folder when __HAXE__
+public class Lazy<T> {
 
-	public CommandFootbox() {
-		super(getRegexConcat());
+	private final Supplier<T> supplier;
+	private T value;
+	private boolean initialized = false;
+
+	public Lazy(Supplier<T> supplier) {
+		this.supplier = supplier;
 	}
 
-	static IRegex getRegexConcat() {
-		return RegexConcat.build(CommandFootbox.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("TYPE", "(hide|show)?"), //
-				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("footbox"), //
-				RegexLeaf.end());
+	public Lazy(Function<Void, T> function) {
+		this.supplier = () -> function.apply(null);
 	}
 
-	@Override
-	protected CommandExecutionResult executeArg(GanttDiagram diagram, LineLocation location, RegexResult arg, ParserPass currentPass) {
-		final boolean footbox = arg.get("TYPE", 0).equalsIgnoreCase("show");
-		diagram.setShowFootbox(footbox);
-		return CommandExecutionResult.ok();
+	public synchronized T get() {
+		if (initialized == false) {
+			value = supplier.get();
+			initialized = true;
+		}
+		return value;
 	}
 }

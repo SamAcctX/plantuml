@@ -37,6 +37,7 @@ package net.sourceforge.plantuml.descdiagram.command;
 
 import java.util.List;
 
+import net.sourceforge.plantuml.Lazy;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.abel.Entity;
 import net.sourceforge.plantuml.abel.LeafType;
@@ -55,7 +56,7 @@ import net.sourceforge.plantuml.klimt.color.NoSuchColorException;
 import net.sourceforge.plantuml.klimt.creole.Display;
 import net.sourceforge.plantuml.klimt.font.FontParam;
 import net.sourceforge.plantuml.plasma.Quark;
-import net.sourceforge.plantuml.regex.MyPattern;
+import net.sourceforge.plantuml.regex.Pattern2;
 import net.sourceforge.plantuml.regex.RegexConcat;
 import net.sourceforge.plantuml.regex.RegexLeaf;
 import net.sourceforge.plantuml.regex.RegexResult;
@@ -75,27 +76,25 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		EXTENDS, IMPLEMENTS
 	};
 
-	public CommandCreateElementMultilines(int type) {
-		super(getRegexConcat(type), MultilinesStrategy.REMOVE_STARTING_QUOTE, Trim.BOTH);
+	private final static Lazy<Pattern2> END0 = new Lazy<>(
+			() -> Pattern2.cmpile("^(.*)[%g]$"));
+
+	private final static Lazy<Pattern2> END1 = new Lazy<>(
+			() -> Pattern2.cmpile("^([^\\[\\]]*)\\]$"));
+
+	public static final CommandCreateElementMultilines TYPE0 = new CommandCreateElementMultilines(0);
+	public static final CommandCreateElementMultilines TYPE1 = new CommandCreateElementMultilines(1);
+
+	private CommandCreateElementMultilines(int type) {
+		super(getRegexConcat(type), MultilinesStrategy.REMOVE_STARTING_QUOTE, Trim.BOTH, type == 0 ? END0 : END1);
 		this.type = type;
-	}
-
-	@Override
-	public String getPatternEnd() {
-		if (type == 0)
-			return "^(.*)[%g]$";
-
-		if (type == 1)
-			return "^([^\\[\\]]*)\\]$";
-
-		throw new IllegalArgumentException();
 	}
 
 	private static RegexConcat getRegexConcat(int type) {
 		if (type == 0)
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
-					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([%pLN_.]+)"), //
+					new RegexLeaf(1, "TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
+					new RegexLeaf(1, "CODE", "([%pLN_.]+)"), //
 					StereotypePattern.optional("STEREO"), //
 					UrlBuilder.OPTIONAL, //
 					RegexLeaf.spaceZeroOrMore(), //
@@ -104,20 +103,20 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					new RegexLeaf("as"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("[%g]"), //
-					new RegexLeaf("DESC", "([^%g]*)"), //
+					new RegexLeaf(1, "DESC", "([^%g]*)"), //
 					RegexLeaf.end());
 
 		if (type == 1)
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
-					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([%pLN_.]+)"), //
+					new RegexLeaf(1, "TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
+					new RegexLeaf(1, "CODE", "([%pLN_.]+)"), //
 					StereotypePattern.optional("STEREO"), //
 					UrlBuilder.OPTIONAL, //
 					RegexLeaf.spaceZeroOrMore(), //
 					ColorParser.exp1(), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("\\["), //
-					new RegexLeaf("DESC", "(.*)"), //
+					new RegexLeaf(1, "DESC", "(.*)"), //
 					RegexLeaf.end());
 
 		throw new IllegalArgumentException();
@@ -150,8 +149,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		}
 
 		final String idShort = line0.get("CODE", 0);
-		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()),
-				lines.getLast().getTrimmed().getString());
+		final List<String> lineLast = StringUtils.getSplit(getEndPattern(), lines.getLast().getTrimmed().getString());
 		lines = lines.subExtract(1, 1);
 		Display display = lines.toDisplay();
 		final String descStart = line0.get("DESC", 0);
