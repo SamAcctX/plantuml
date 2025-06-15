@@ -37,7 +37,6 @@ package net.sourceforge.plantuml.url;
 
 import net.sourceforge.plantuml.regex.IRegex;
 import net.sourceforge.plantuml.regex.Matcher2;
-import net.sourceforge.plantuml.regex.MyPattern;
 import net.sourceforge.plantuml.regex.Pattern2;
 import net.sourceforge.plantuml.regex.RegexLeaf;
 import net.sourceforge.plantuml.regex.RegexOptional;
@@ -45,7 +44,7 @@ import net.sourceforge.plantuml.regex.RegexOptional;
 public class UrlBuilder {
     // ::remove file when __HAXE__
 
-	public static final IRegex MANDATORY = new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")");
+	public static final IRegex MANDATORY = new RegexLeaf(12, "URL", "(" + UrlBuilder.getRegexp() + ")");
 	public static final IRegex OPTIONAL = new RegexOptional(MANDATORY);
 
 	private static final String START_PART = "\\[\\[[%s]*";
@@ -87,12 +86,11 @@ public class UrlBuilder {
 				S_LINK_WITH_OPTIONAL_TOOLTIP_WITH_OPTIONAL_LABEL;
 	}
 
-	private static final Pattern2 QUOTED = MyPattern.cmpile(S_QUOTED);
-	private static final Pattern2 ONLY_TOOLTIP = MyPattern.cmpile(S_ONLY_TOOLTIP);
-	private static final Pattern2 ONLY_TOOLTIP_AND_LABEL = MyPattern.cmpile(S_ONLY_TOOLTIP_AND_LABEL);
-	private static final Pattern2 LINK_TOOLTIP_NOLABEL = MyPattern.cmpile(S_LINK_TOOLTIP_NOLABEL);
-	private static final Pattern2 LINK_WITH_OPTIONAL_TOOLTIP_WITH_OPTIONAL_LABEL = MyPattern
-			.cmpile(S_LINK_WITH_OPTIONAL_TOOLTIP_WITH_OPTIONAL_LABEL);
+	private static final Pattern2 QUOTED = Pattern2.cmpile(S_QUOTED);
+	private static final Pattern2 ONLY_TOOLTIP = Pattern2.cmpile(S_ONLY_TOOLTIP);
+	private static final Pattern2 ONLY_TOOLTIP_AND_LABEL = Pattern2.cmpile(S_ONLY_TOOLTIP_AND_LABEL);
+	private static final Pattern2 LINK_TOOLTIP_NOLABEL = Pattern2.cmpile(S_LINK_TOOLTIP_NOLABEL);
+	private static final Pattern2 LINK_WITH_OPTIONAL_TOOLTIP_WITH_OPTIONAL_LABEL = Pattern2.cmpile(S_LINK_WITH_OPTIONAL_TOOLTIP_WITH_OPTIONAL_LABEL);
 
 	private final String topurl;
 	private UrlMode mode;

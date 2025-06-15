@@ -37,6 +37,8 @@
  */
 package net.sourceforge.plantuml.abel;
 
+import java.util.EnumSet;
+
 import net.sourceforge.plantuml.StringUtils;
 
 public enum LeafType {
@@ -44,7 +46,7 @@ public enum LeafType {
 	EMPTY_PACKAGE,
 
 	ABSTRACT_CLASS, CLASS, INTERFACE, ANNOTATION, PROTOCOL, STRUCT, EXCEPTION, METACLASS, STEREOTYPE, LOLLIPOP_FULL,
-	LOLLIPOP_HALF, NOTE, TIPS, OBJECT, MAP, JSON, ASSOCIATION, ENUM, CIRCLE,
+	LOLLIPOP_HALF, NOTE, TIPS, OBJECT, MAP, JSON, ASSOCIATION, ENUM, CIRCLE, DATACLASS, RECORD,
 
 	USECASE, USECASE_BUSINESS,
 
@@ -80,12 +82,19 @@ public enum LeafType {
 		return LeafType.valueOf(type);
 	}
 
+	private static final EnumSet<LeafType> LIKE_CLASS =
+	        EnumSet.of(
+	            LeafType.ANNOTATION, LeafType.ABSTRACT_CLASS, LeafType.CLASS,
+	            LeafType.INTERFACE, LeafType.ENUM, LeafType.ENTITY,
+	            LeafType.PROTOCOL, LeafType.STRUCT, LeafType.EXCEPTION,
+	            LeafType.METACLASS, LeafType.STEREOTYPE, LeafType.DATACLASS,
+	            LeafType.RECORD
+	        );
+
 	public boolean isLikeClass() {
-		return this == LeafType.ANNOTATION || this == LeafType.ABSTRACT_CLASS || this == LeafType.CLASS
-				|| this == LeafType.INTERFACE || this == LeafType.ENUM || this == LeafType.ENTITY
-				|| this == LeafType.PROTOCOL || this == LeafType.STRUCT || this == LeafType.EXCEPTION
-				|| this == LeafType.METACLASS || this == LeafType.STEREOTYPE;
+	    return LIKE_CLASS.contains(this);
 	}
+
 
 	public String toHtml() {
 		final String html = StringUtils.goLowerCase(toString().replace('_', ' '));

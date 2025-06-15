@@ -35,6 +35,8 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
+import java.util.List;
+
 import net.sourceforge.plantuml.abel.Entity;
 import net.sourceforge.plantuml.abel.EntityPortion;
 import net.sourceforge.plantuml.abel.LeafType;
@@ -68,8 +70,6 @@ import net.sourceforge.plantuml.svek.HeaderLayout;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.text.Guillemet;
 
-import java.util.List;
-
 public class EntityImageClassHeader extends AbstractEntityImage {
 
 	final private HeaderLayout headerLayout;
@@ -89,7 +89,7 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 				.withTOBECHANGED(stereotype) //
 				.with(entity.getStereostyles()) //
 				.getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-		
+
 		FontConfiguration fontConfigurationName = FontConfiguration.create(getSkinParam(), styleHeader, entity.getColors());
 		if (italic)
 			fontConfigurationName = fontConfigurationName.italic();
@@ -126,7 +126,7 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 		TextBlock genericBlock;
 		if (generic == null) {
 			genericBlock = null;
-		} else {			
+		} else {
 			final Style styleGeneric = StyleSignatureBasic
 					.of(SName.root, SName.element, SName.classDiagram, SName.class_, SName.generic) //
 					.withTOBECHANGED(stereotype) //
@@ -209,6 +209,10 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return StyleSignatureBasic.of(SName.root, SName.element, SName.spot, SName.spotMetaClass);
 		case STEREOTYPE:
 			return StyleSignatureBasic.of(SName.root, SName.element, SName.spot, SName.spotStereotype);
+		case DATACLASS:
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.spot, SName.spotDataClass);
+		case RECORD:
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.spot, SName.spotRecord);
 		}
 		throw new IllegalStateException();
 	}
@@ -237,6 +241,10 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return 'M';
 		case STEREOTYPE:
 			return 'S';
+		case DATACLASS:
+			return 'D';
+		case RECORD:
+			return 'R';
 		}
 		assert false;
 		return '?';

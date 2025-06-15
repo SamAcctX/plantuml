@@ -38,7 +38,6 @@ package net.sourceforge.plantuml.command;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.klimt.color.NoSuchColorException;
 import net.sourceforge.plantuml.regex.IRegex;
-import net.sourceforge.plantuml.regex.RegexConcat;
 import net.sourceforge.plantuml.text.StringLocated;
 import net.sourceforge.plantuml.utils.BlocLines;
 
@@ -50,19 +49,15 @@ public abstract class CommandMultilines3<S extends Diagram> implements Command<S
 
 	private final Trim trimEnd;
 
-	public CommandMultilines3(IRegex patternStart, MultilinesStrategy strategy, Trim trimEnd) {
-		if (patternStart.getPattern().startsWith("^") == false || patternStart.getPattern().endsWith("$") == false)
-			throw new IllegalArgumentException("Bad pattern " + patternStart.getPattern());
+	private final IRegex patternEnd;
+
+	public CommandMultilines3(IRegex patternStart, MultilinesStrategy strategy, Trim trimEnd, IRegex patternEnd) {
+		assert patternStart.getPatternAsString().startsWith("^") && patternStart.getPatternAsString().endsWith("$");
 
 		this.strategy = strategy;
 		this.starting = patternStart;
 		this.trimEnd = trimEnd;
-	}
-
-	public abstract RegexConcat getPatternEnd2();
-
-	public String[] getDescription() {
-		return new String[] { "START: " + starting.getPattern(), "END: " + getPatternEnd2().getPattern() };
+		this.patternEnd = patternEnd;
 	}
 
 	final public CommandControl isValid(BlocLines lines) {
@@ -89,14 +84,15 @@ public abstract class CommandMultilines3<S extends Diagram> implements Command<S
 		else
 			throw new IllegalStateException();
 
-		final boolean m1 = getPatternEnd2().match(potentialLast);
+		final boolean m1 = patternEnd.match(potentialLast);
 		if (m1 == false)
 			return CommandControl.OK_PARTIAL;
 
 		return finalVerification();
 	}
 
-	public final CommandExecutionResult execute(S system, BlocLines lines, ParserPass currentPass) throws NoSuchColorException {
+	public final CommandExecutionResult execute(S system, BlocLines lines, ParserPass currentPass)
+			throws NoSuchColorException {
 		lines = lines.cleanList(strategy);
 		return executeNow(system, lines);
 	}
@@ -114,11 +110,14 @@ public abstract class CommandMultilines3<S extends Diagram> implements Command<S
 	protected final IRegex getStartingPattern() {
 		return starting;
 	}
-	
+
+	protected final IRegex getEndingPattern() {
+		return patternEnd;
+	}
+
 	@Override
 	public boolean isEligibleFor(ParserPass pass) {
 		return pass == ParserPass.ONE;
 	}
-
 
 }
